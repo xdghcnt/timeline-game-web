@@ -1,0 +1,41 @@
+{
+  title: 'Игры',
+  scales: [
+    'releaseDate',
+    'maxOnline'
+  ],
+  cards: [
+    {
+      id: 0,
+      title: 'Dota 2',
+      values: {
+        releaseDate: 2011,
+        maxOnline: 1240114
+      }
+    },
+    {
+      id: 1,
+      title: 'CS 1.6',
+      values: {
+        releaseDate: 1998,
+        maxOnline: 1
+      }
+    },
+    {
+      id: 3,
+      title: 'Undertale',
+      values: {
+        releaseDate: 2015,
+        maxOnline: 99999999
+      }
+    },
+    {
+      id: 4,
+      title: 'TeamFortress2',
+      values: {
+        releaseDate: 2007,
+        maxOnline: 99999999999999
+      }
+    }
+  ]
+}

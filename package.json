@@ -1,0 +1,14 @@
+{
+  "name": "dixit",
+  "version": "0.0.0",
+  "main": "module.js",
+  "private": true,
+  "files": [
+    "module.js",
+    "public"
+  ],
+  "dependencies": {
+    "randomcolor": "0.5.3",
+    "nedb-promises": "^6.0.3"
+  }
+}
