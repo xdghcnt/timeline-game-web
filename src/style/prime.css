@@ -1,0 +1,4 @@
+@import './generated/theme.css';
+@import 'primeflex/primeflex.min.css';
+@import 'primevue/resources/primevue.min.css';
+@import 'primeicons/primeicons.css';

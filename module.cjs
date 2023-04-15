@@ -16,10 +16,8 @@ function init(wsServer, path, vkToken) {
     packsDB.persistence.setAutocompactionInterval(60000);
     cardsDB.persistence.setAutocompactionInterval(60000);
 
-    app.use("/timeline", wsServer.static(`${__dirname}/public`));
-    if (registry.config.appDir)
-        app.use("/timeline", wsServer.static(`${registry.config.appDir}/public`));
-    registry.handleAppPage(path, `${__dirname}/public/app.html`);
+    app.use("/timeline", wsServer.static(`${__dirname}/dist`));
+    registry.handleAppPage(path, `${__dirname}/dist/index.html`, `${__dirname}/dist/manifest.json`, '/timeline/');
 
     app.post("/timeline/upload-image", async (req, res) => {
         const publicDir = `${this.config.appDir}/public/user-data`;
@@ -44,7 +42,7 @@ function init(wsServer, path, vkToken) {
                 } else {
                     try {
                         await fsPromises.rename(`${fullImagePath}_temp`, fullImagePath);
-                        res.send({ id });
+                        res.send({id});
                     } catch (error) {
                         this.log(`fileUpload detect error ${error}`);
                         wasError = true;
@@ -55,7 +53,7 @@ function init(wsServer, path, vkToken) {
                 }
             });
         } else res.status(500).send("Wrong data");
-    })
+    });
 
     const packs = {
         games: {
@@ -68,7 +66,7 @@ function init(wsServer, path, vkToken) {
                     values: {
                         releaseDate: 2011,
                         maxOnline: 1240114,
-                    }
+                    },
                 },
                 {
                     id: 1,
@@ -76,7 +74,7 @@ function init(wsServer, path, vkToken) {
                     values: {
                         releaseDate: 1998,
                         maxOnline: 1,
-                    }
+                    },
                 },
                 {
                     id: 3,
@@ -84,7 +82,7 @@ function init(wsServer, path, vkToken) {
                     values: {
                         releaseDate: 2015,
                         maxOnline: 99999999,
-                    }
+                    },
                 },
                 {
                     id: 4,
@@ -92,10 +90,10 @@ function init(wsServer, path, vkToken) {
                     values: {
                         releaseDate: 2007,
                         maxOnline: 99999999999999,
-                    }
-                }
-            ]
-        }
+                    },
+                },
+            ],
+        },
     };
 
     class GameState extends wsServer.users.RoomState {
@@ -211,7 +209,7 @@ function init(wsServer, path, vkToken) {
                     }
                     const newCard = state.deck.pop();
                     state.playerHands[user].push(newCard);
-                    const newCardNoValues = getNoValueCard(newCard)
+                    const newCardNoValues = getNoValueCard(newCard);
                     room.playerHands[user].push(newCardNoValues);
                     room.deckSize = state.deck.length;
                 },
@@ -341,7 +339,7 @@ function init(wsServer, path, vkToken) {
                         fs.stat(`${registry.config.appDir || __dirname}/public/avatars/${user}/${data.avatarId}.png`, (err) => {
                             if (!err) {
                                 room.playerAvatars[user] = data.avatarId;
-                                update()
+                                update();
                             }
                         });
                     }
@@ -402,7 +400,7 @@ function init(wsServer, path, vkToken) {
                 ...this.eventHandlers,
                 "update-avatar": (user, id) => {
                     room.playerAvatars[user] = id;
-                    update()
+                    update();
                 },
                 "toggle-lock": (user) => {
                     if (user === room.hostId)
@@ -523,7 +521,7 @@ function init(wsServer, path, vkToken) {
                             _id: packId,
                             name: 'Новый пак',
                             scaleNames: {
-                                [scaleId]: 'Шкала 1'
+                                [scaleId]: 'Шкала 1',
                             },
                             scales: [scaleId],
                             enabled: false,
@@ -533,7 +531,7 @@ function init(wsServer, path, vkToken) {
                             _id: cardId,
                             title: 'Карта 1',
                             values: {
-                                [scaleId]: 0
+                                [scaleId]: 0,
                             },
                             image: null,
                             packId,
@@ -645,7 +643,7 @@ function init(wsServer, path, vkToken) {
                         const packExtended = {...pack};
                         packExtended.cards = (await cardsDB.find({packId})).map((it) => ({
                             ...it,
-                            values: pack.ownerId === room.authUsers[user]?._id ? it.values : undefined
+                            values: pack.ownerId === room.authUsers[user]?._id ? it.values : undefined,
                         }));
                         packExtended.ownerName = (await registry.authUsers.getUsersMiniProfiles([pack.ownerId]))[0];
                         send(user, 'pack', packExtended);
@@ -716,11 +714,11 @@ function init(wsServer, path, vkToken) {
 
     class JSONSet extends Set {
         constructor(iterable) {
-            super(iterable)
+            super(iterable);
         }
 
         toJSON() {
-            return [...this]
+            return [...this];
         }
     }
 
