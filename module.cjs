@@ -354,11 +354,18 @@ function init(wsServer, path, vkToken) {
                         clearInterval(interval);
                     update();
                 },
-                userEvent = (user, event, data) => {
+                userEvent = async (user, event, data) => {
                     this.lastInteraction = new Date();
                     try {
                         if (this.eventHandlers[event])
-                            this.eventHandlers[event](user, data[0], data[1], data[2]);
+                            return this.eventHandlers[event](user, data[0], data[1], data[2]);
+                        if (this.eventRequestHandlers[event]) {
+                            const result = await this.eventRequestHandlers[event](user, data[1], data[2]);
+                            send(user, 'request-result', {
+                                data: result,
+                                id: data[0],
+                            });
+                        }
                     } catch (error) {
                         console.error(error);
                         registry.log(error.message);
@@ -511,6 +518,8 @@ function init(wsServer, path, vkToken) {
                         endRound();
                     }
                 },
+            };
+            this.eventRequestHandlers = {
                 "create-pack": async (user) => {
                     const authUser = room.authUsers[user]?._id;
                     if (authUser) {

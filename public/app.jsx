@@ -15,16 +15,24 @@ class Game extends React.Component {
     componentDidMount() {
         this.gameName = "timeline";
         const initArgs = CommonRoom.roomInit(this);
+        window.gameApp = this;
         this.socket.on("state", state => {
+            window.gameState = state;
             CommonRoom.processCommonRoom(state, this.state, {
                 maxPlayers: "∞",
                 largeImageKey: "timeline",
                 details: "timeline/Мемоджинариум",
             }, this);
-            this.setState(state);
+            this.setState({
+                ...state,
+                userId: this.userId,
+            });
         });
         this.socket.on("message", text => {
             popup.alert({content: text});
+        });
+        this.socket.on("reload", () => {
+            setTimeout(() => window.location.reload(), 3000);
         });
         window.socket.on("disconnect", (event) => {
             this.setState({
@@ -32,14 +40,6 @@ class Game extends React.Component {
                 disconnected: true,
                 disconnectReason: event.reason,
             });
-        });
-        this.socket.on("reload", () => {
-            setTimeout(() => window.location.reload(), 3000);
-        });
-        this.socket.on("prompt-delete-prev-room", (roomList) => {
-            if (localStorage.acceptDelete =
-                prompt(`Limit for hosting rooms per IP was reached: ${roomList.join(", ")}. Delete one of rooms?`, roomList[0]))
-                location.reload();
         });
         this.socket.on("ping", (id) => {
             this.socket.emit("pong", id);

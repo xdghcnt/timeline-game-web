@@ -1,14 +1,13 @@
 <template>
-    <div>
-    </div>
     <Timeline />
 </template>
 
 <script setup lang="ts">
-    import Timeline from './components/Timeline.vue';
+    import Timeline from './views/Timeline.vue';
 </script>
 
 <style>
-    @import './style/prime.css';
+    @import './style/prime.scss';
     @import './style/common.scss';
+    @import './style/timeline.css';
 </style>
