@@ -360,7 +360,7 @@ function init(wsServer, path, vkToken) {
                         if (this.eventHandlers[event])
                             return this.eventHandlers[event](user, data[0], data[1], data[2]);
                         if (this.eventRequestHandlers[event]) {
-                            const result = await this.eventRequestHandlers[event](user, data[1], data[2]);
+                            const result = await this.eventRequestHandlers[event](user, data[1], data[2], data[3], data[4]);
                             send(user, 'request-result', {
                                 data: result,
                                 id: data[0],
@@ -386,7 +386,7 @@ function init(wsServer, path, vkToken) {
                     const authUser = room.authUsers[user]?._id;
                     if (authUser) {
                         const pack = await packsDB.findOne({_id: id});
-                        if (pack?.owner === authUser)
+                        if (pack?.ownerId === authUser)
                             return pack;
                     }
                 },
@@ -395,7 +395,7 @@ function init(wsServer, path, vkToken) {
                     if (authUser) {
                         const card = await cardDB.findOne({_id: id});
                         const pack = await packsDB.findOne({_id: card.pack});
-                        if (pack?.owner === authUser)
+                        if (pack?.ownerId === authUser)
                             return card;
                     }
                 };
@@ -535,6 +535,12 @@ function init(wsServer, path, vkToken) {
                             scales: [scaleId],
                             enabled: false,
                             ownerId: authUser,
+                            // cTime: +(new Date()), // todo
+                            // mTime: +(new Date()),
+                            // todo Лайки 👍👍👍🏿
+                            // todo Выбирать новый пак при создании нового пака если он уже есть
+                            // todo Короче при создании нового пака проверять, что он уже сущесттвует (Новый пак)
+                            // todo (В одном случае новый это название, а в одном случае это просто новый блять а не старый)
                         });
                         await cardsDB.insert({
                             _id: cardId,
@@ -545,16 +551,15 @@ function init(wsServer, path, vkToken) {
                             image: null,
                             packId,
                         });
-                        send(user, 'pack-created', packId);
+                        return packId;
                     }
                 },
                 "update-pack": async (user, packId, name, enabled) => {
-                    const pack = await getPack(packId);
+                    const pack = await getPack(user, packId);
                     if (pack && typeof enabled === 'boolean') {
                         pack.name = name;
                         pack.enabled = enabled;
-                        await cardsDB.update({packId}, pack);
-                        send(user, 'pack-updated');
+                        await packsDB.update({_id: packId}, pack);
                     }
                 },
                 'remove-pack': async (user, packId) => {
@@ -641,10 +646,12 @@ function init(wsServer, path, vkToken) {
                     }
                 },
                 "pack-list": async (user) => {
-                    send(user, 'pack-list', await packsDB.find({enabled: true}));
-                },
-                "owned-pack-list": async (user) => {
-                    send(user, 'owned-pack-list', await packsDB.find({ownerId: room.authUsers[user]?._id}));
+                    return packsDB.find({$or: [{enabled: true}, {ownerId: room.authUsers[user]?._id}]}, {
+                        _id: 1,
+                        name: 1,
+                        enabled: 1,
+                        ownerId: 1,
+                    });
                 },
                 "get-pack": async (user, packId) => {
                     const pack = await packsDB.findOne({_id: packId});
@@ -654,8 +661,8 @@ function init(wsServer, path, vkToken) {
                             ...it,
                             values: pack.ownerId === room.authUsers[user]?._id ? it.values : undefined,
                         }));
-                        packExtended.ownerName = (await registry.authUsers.getUsersMiniProfiles([pack.ownerId]))[0];
-                        send(user, 'pack', packExtended);
+                        packExtended.ownerMiniProfile = (await registry.authUsers.getUsersMiniProfiles([pack.ownerId]))[0];
+                        return packExtended;
                     }
                 },
             };

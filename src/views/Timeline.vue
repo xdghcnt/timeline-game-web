@@ -2,19 +2,31 @@
     <div class="pre-wrap text-left fixed top-0 left-0 mt-5 ml-3 text-xs">
         {{ state }}
     </div>
-    <DashMenu :bottom-buttons="bottomButtons" :number-settings="numberSettings" />
+    <DashMenu :bottom-buttons="bottomButtons" :number-settings="numberSettings">
+        <DashButton title="Библиотека паков" icon="collections_bookmark" @click="openLibrary()" />
+    </DashMenu>
+    <PackLibrary ref="packLibrary" />
 </template>
 
 <script setup lang="ts">
     import DashMenu from '../components/common/DashMenu.vue';
     import { DashMenuButton, DashMenuNumberSetting } from '../components/common/dash-menu';
     import { useTimelineService, useTimelineState } from '../service';
-    import { computed } from 'vue';
+    import { computed, ref } from 'vue';
+    import DashButton from '../components/common/DashButton.vue';
+    import { PackLibraryRef } from '../components';
+    import PackLibrary from '../components/PackLibrary.vue';
 
     defineProps();
 
     const state = useTimelineState();
     const service = useTimelineService();
+
+    const packLibrary = ref<PackLibraryRef>();
+
+    function openLibrary() {
+        packLibrary.value?.open();
+    }
 
     const bottomButtons = computed<DashMenuButton[]>(() => {
         return [

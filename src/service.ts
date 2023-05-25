@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { processWrappedRequest, ReactAppWindow, requestWrap, SocketWrappedRequestResult } from './react-common';
+import { Pack, PackFull, PackID } from './components';
 
 const GAME_CHANNEL = '/bg/timeline';
 
@@ -16,6 +17,10 @@ export function useTimelineService() {
     return {
         toggleLock: () => socket.emit('toggle-lock'),
         setRoomMode: () => socket.emit('set-room-mode', false),
+        listPacks: () => requestWrap<Pack[]>(socket, 'pack-list'),
+        getPack: (id: PackID) => requestWrap<PackFull>(socket, 'get-pack', id),
+        createPack: () => requestWrap<PackID>(socket, 'create-pack'),
+        updatePack: (packId: PackID, name: string, enabled: boolean) => requestWrap<PackID>(socket, 'update-pack', packId, name, enabled),
     };
 }
 

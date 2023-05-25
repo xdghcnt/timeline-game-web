@@ -20,6 +20,7 @@
 
         &:hover {
             background-color: var(--primary-color);
+            color: var(--primary-color-text);
         }
     }
 </style>

@@ -22,7 +22,7 @@ export interface SocketWrappedRequestResult {
     data: any;
 }
 
-export function requestWrap(socket: WrappedSocket, eventName: string, ...args: any[]) {
+export function requestWrap<ReturnType>(socket: WrappedSocket, eventName: string, ...args: any[]): Promise<ReturnType> {
     const id = `${ +new Date() }`;
     socket.emit(eventName, id, ...args);
     return new Promise((resolve) => {
